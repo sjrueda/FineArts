@@ -20,7 +20,8 @@ namespace FineArts.Wpf
             Edit = 3
         }
         Action action = Action.None;
-        List<Student> originalListStudents = new List<Student>();
+        //List<Student> originalListStudents = new List<Student>();
+        Student[] originalListStudents;
         public MainWindow()
         {
             InitializeComponent();
@@ -36,7 +37,9 @@ namespace FineArts.Wpf
             TeacherService Service = new TeacherService();
             Teacher? SelectedTeacher = TeachersList.SelectedItem as Teacher;
             StudentsLists.DataContext = Service.GetStudentsByTeacher(SelectedTeacher!.Id);
-            originalListStudents = StudentsLists.DataContext as List<Student>;
+            int numberStudent = (StudentsLists.DataContext as List<Student>).Count;
+            originalListStudents = new Student[numberStudent];
+            (StudentsLists.DataContext as List<Student>).CopyTo(originalListStudents);
         }
 
         private void StudentsLists_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -76,6 +79,7 @@ namespace FineArts.Wpf
                         Students.Add(NewStudent);
                         StudentsLists.Items.Refresh();
                         SaveChanges.IsEnabled = true;
+                        action = Action.Add;
                     }
                     break;
                 case System.Windows.Input.Key.Delete:
@@ -134,10 +138,12 @@ namespace FineArts.Wpf
                     }
                     SaveChanges.IsEnabled = false;
                     action = Action.None;
-                    originalListStudents = students;
+                    originalListStudents = new Student[students.Count];
+                    students.CopyTo(originalListStudents);
                     break;
 
                 case Action.Edit:
+
                     break;
             }
 
