@@ -19,8 +19,9 @@ namespace FineArts.Wpf
             Remove = 2,
             Edit = 3
         }
+        
         Action action = Action.None;
-        //List<Student> originalListStudents = new List<Student>();
+        List<Student> editListStudents = new List<Student>();
         Student[] originalListStudents;
         public MainWindow()
         {
@@ -47,6 +48,18 @@ namespace FineArts.Wpf
             switch (e.Key)
             {
                 case System.Windows.Input.Key.Enter:
+                    string message = string.Empty;
+                    if (action == Action.Add)
+                    {
+                        message = "Debes guardar el estudiante agregado.";
+                    }else if (action == Action.Remove)
+                    {
+                        message = "Debes guardar el estudiante eliminado.";
+                    }
+                    if (!string.IsNullOrEmpty(message))
+                    {
+                        var result = MessageBox.Show(message, "Confirmar editar", MessageBoxButton.OKCancel);
+                    }
                     Student? SelectedStudent = StudentsLists.SelectedItem as Student;
                     StudentForm studentForm = new StudentForm();
                     studentForm.Title = "Editar la información de usuario";
@@ -61,7 +74,10 @@ namespace FineArts.Wpf
                             "dd-MM-yyyy", CultureInfo.InvariantCulture);
                         StudentsLists.Items.Refresh();
                         SaveChanges.IsEnabled = true;
+                        action = Action.Edit;
+                        editListStudents.Add(SelectedStudent);
                     }
+                    
                     break;
                 case System.Windows.Input.Key.Insert:
                     studentForm = new StudentForm();
@@ -143,10 +159,16 @@ namespace FineArts.Wpf
                     break;
 
                 case Action.Edit:
-
+                    foreach (Student item in editListStudents)
+                    {
+                        StudentService service = new StudentService();
+                        service.EditStudent(item);
+                    }
+                    SaveChanges.IsEnabled = false;
+                    action = Action.None;
+                    editListStudents.Clear();
                     break;
             }
-
 
         }
     }

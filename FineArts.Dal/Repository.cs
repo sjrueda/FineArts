@@ -71,5 +71,13 @@ namespace FineArts.Dal
             result = context.SaveChanges() > 0;
             return result;
         }
+        public bool EditStudent(Student student)
+        {
+            bool result = false;
+            using FineArtsContext context = new FineArtsContext();
+            context.Students.Update(student);
+            result = context.SaveChanges() > 0;
+            return result;
+        }
     }
 }

@@ -26,5 +26,12 @@ namespace FineArts.Bll
             result = repository.DeleteStudent(student);
             return result;
         }
+        public bool EditStudent(Student student)
+        {
+            bool result = false;
+            Repository repository = new();
+            result = repository.EditStudent(student);
+            return result;
+        }
     }
 }
