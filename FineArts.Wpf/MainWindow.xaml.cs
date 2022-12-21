@@ -10,8 +10,14 @@ namespace FineArts.Wpf
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
+        class ActionStudent
+        {
+            public Action Action { get; set; }
+            public Student Student { get; set; }
+        }
         enum Action
         {
             None = 0,
@@ -19,7 +25,7 @@ namespace FineArts.Wpf
             Remove = 2,
             Edit = 3
         }
-        
+        List<ActionStudent> actionStudents= new List<ActionStudent>();
         Action action = Action.None;
         List<Student> editListStudents = new List<Student>();
         Student[] originalListStudents;
@@ -75,10 +81,12 @@ namespace FineArts.Wpf
                         StudentsLists.Items.Refresh();
                         SaveChanges.IsEnabled = true;
                         action = Action.Edit;
+                        var actionStudent = new ActionStudent { Action = action, Student = SelectedStudent };
+                        actionStudents.Add(actionStudent);
                         editListStudents.Add(SelectedStudent);
-                    }
-                    
+                    }                    
                     break;
+
                 case System.Windows.Input.Key.Insert:
                     studentForm = new StudentForm();
                     Teacher selectedTeacher = TeachersList.SelectedItem as Teacher;
@@ -96,6 +104,8 @@ namespace FineArts.Wpf
                         StudentsLists.Items.Refresh();
                         SaveChanges.IsEnabled = true;
                         action = Action.Add;
+                        var actionStudent = new ActionStudent { Action = action, Student = NewStudent };
+                        actionStudents.Add(actionStudent);
                     }
                     break;
                 case System.Windows.Input.Key.Delete:
@@ -111,6 +121,8 @@ namespace FineArts.Wpf
                         StudentsLists.Items.Refresh();
                         SaveChanges.IsEnabled = true;
                         action = Action.Remove;
+                        var actionStudent = new ActionStudent { Action = action, Student = SelectedStudentDelete };
+                        actionStudents.Add(actionStudent);
                     }
 
                     break;
@@ -119,57 +131,75 @@ namespace FineArts.Wpf
 
         private void SaveChanges_Click(object sender, RoutedEventArgs e)
         {
-            switch (action)
+            StudentService service = new StudentService();
+            foreach (ActionStudent Item in actionStudents)
             {
-                case Action.Add:
-                    foreach (Student Item in StudentsLists.ItemsSource)
-                    {
-                        if (Item.Id == 0)
-                        {
-                            bool result;
-                            StudentService service = new StudentService();
-                            result = service.AddStudent(Item);
-                            string message = result ?
-                            $"El estudiante {Item.FirstName} {Item.LastName} Se guardó exitosamente" :
-                            $"No se pudo guardar el estudiante {Item.FirstName} {Item.LastName}";
+                bool result;
+                switch (Item.Action)
+                {
+                    case Action.Add:
+                        break;
 
-                            MessageBox.Show(message, "Guardar Estudiante", MessageBoxButton.OK);
-                            //StudentsLists.Items.Refresh();
-                        }
-                    }
-                    TeachersList_SelectionChanged(null, null);
-                    SaveChanges.IsEnabled = false;
-                    action = Action.None;
-                    break;
+                    case Action.Remove:
+                        break;
 
-                case Action.Remove:
-                    List<Student> students = StudentsLists.ItemsSource as List<Student>;
-                    foreach (Student item in originalListStudents)
-                    {
-                        if (students.Exists(s => s.Id == item.Id) == false)
-                        {
-                            StudentService service = new StudentService();
-                            service.DeleteStudent(item);
-                        }
-                    }
-                    SaveChanges.IsEnabled = false;
-                    action = Action.None;
-                    originalListStudents = new Student[students.Count];
-                    students.CopyTo(originalListStudents);
-                    break;
-
-                case Action.Edit:
-                    foreach (Student item in editListStudents)
-                    {
-                        StudentService service = new StudentService();
-                        service.EditStudent(item);
-                    }
-                    SaveChanges.IsEnabled = false;
-                    action = Action.None;
-                    editListStudents.Clear();
-                    break;
+                    case Action.Edit:
+                        break;
+                }                
             }
+            /*
+                switch (action)
+                {
+                    case Action.Add:
+                        foreach (Student Item in StudentsLists.ItemsSource)
+                        {
+                            if (Item.Id == 0)
+                            {
+                                bool result;
+                                StudentService service = new StudentService();
+                                result = service.AddStudent(Item);
+                                string message = result ?
+                                $"El estudiante {Item.FirstName} {Item.LastName} Se guardó exitosamente" :
+                                $"No se pudo guardar el estudiante {Item.FirstName} {Item.LastName}";
+
+                                MessageBox.Show(message, "Guardar Estudiante", MessageBoxButton.OK);
+                                //StudentsLists.Items.Refresh();
+                            }
+                        }
+                        TeachersList_SelectionChanged(null, null);
+                        SaveChanges.IsEnabled = false;
+                        action = Action.None;
+                        break;
+
+                    case Action.Remove:
+                        List<Student> students = StudentsLists.ItemsSource as List<Student>;
+                        foreach (Student item in originalListStudents)
+                        {
+                            if (students.Exists(s => s.Id == item.Id) == false)
+                            {
+                                StudentService service = new StudentService();
+                                service.DeleteStudent(item);
+                            }
+                        }
+                        SaveChanges.IsEnabled = false;
+                        action = Action.None;
+                        originalListStudents = new Student[students.Count];
+                        students.CopyTo(originalListStudents);
+                        break;
+
+                    case Action.Edit:
+                        foreach (Student item in editListStudents)
+                        {
+                            StudentService service = new StudentService();
+                            service.EditStudent(item);
+                        }
+                        SaveChanges.IsEnabled = false;
+                        action = Action.None;
+                        editListStudents.Clear();
+                        break;
+                }*/
 
         }
+
     }
 }
