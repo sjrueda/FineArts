@@ -25,7 +25,7 @@ namespace FineArts.Wpf
             Remove = 2,
             Edit = 3
         }
-        List<ActionStudent> actionStudents= new List<ActionStudent>();
+        List<ActionStudent> actionStudents = new List<ActionStudent>();
         Action action = Action.None;
         List<Student> editListStudents = new List<Student>();
         Student[] originalListStudents;
@@ -47,6 +47,7 @@ namespace FineArts.Wpf
             int numberStudent = (StudentsLists.DataContext as List<Student>).Count;
             originalListStudents = new Student[numberStudent];
             (StudentsLists.DataContext as List<Student>).CopyTo(originalListStudents);
+
         }
 
         private void StudentsLists_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -58,7 +59,8 @@ namespace FineArts.Wpf
                     if (action == Action.Add)
                     {
                         message = "Debes guardar el estudiante agregado.";
-                    }else if (action == Action.Remove)
+                    }
+                    else if (action == Action.Remove)
                     {
                         message = "Debes guardar el estudiante eliminado.";
                     }
@@ -84,7 +86,7 @@ namespace FineArts.Wpf
                         var actionStudent = new ActionStudent { Action = action, Student = SelectedStudent };
                         actionStudents.Add(actionStudent);
                         editListStudents.Add(SelectedStudent);
-                    }                    
+                    }
                     break;
 
                 case System.Windows.Input.Key.Insert:
@@ -138,15 +140,25 @@ namespace FineArts.Wpf
                 switch (Item.Action)
                 {
                     case Action.Add:
+                        result = service.AddStudent(Item.Student);
+                        string message = result ?
+                        $"El estudiante {Item.Student.FirstName} {Item.Student.LastName} Se guardó exitosamente" :
+                        $"No se pudo guardar el estudiante {Item.Student.FirstName} {Item.Student.LastName}";
+                        MessageBox.Show(message, "Guardar Estudiante", MessageBoxButton.OK);
                         break;
 
                     case Action.Remove:
+                        service.DeleteStudent(Item.Student);
                         break;
 
                     case Action.Edit:
+                        service.EditStudent(Item.Student);
                         break;
-                }                
+                }
             }
+            actionStudents.Clear();
+            SaveChanges.IsEnabled = false;
+            StudentsLists.Items.Refresh();
             /*
                 switch (action)
                 {
